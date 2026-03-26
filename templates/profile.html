@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Profil: {{ profil_user.username }} – Wortmeldungs-App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+
+        <!-- Profil-Header -->
+        <div class="card shadow border-0 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
+                         style="width:70px;height:70px;font-size:2rem;flex-shrink:0">
+                        {{ profil_user.username[0].upper() }}
+                    </div>
+                    <div class="ms-4">
+                        <h3 class="mb-1">{{ profil_user.username }}</h3>
+                        <p class="text-muted mb-1 small">
+                            <i class="bi bi-envelope me-1"></i>{{ profil_user.email }}
+                        </p>
+                        <p class="text-muted mb-0 small">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            Mitglied seit {{ profil_user.erstellt_am.strftime('%d.%m.%Y') }}
+                        </p>
+                    </div>
+                    <div class="ms-auto text-center">
+                        <div class="fs-2 fw-bold text-primary">{{ wortmeldungen.total }}</div>
+                        <div class="text-muted small">Wortmeldungen</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wortmeldungen des Users -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                <i class="bi bi-chat-square-text me-2 text-primary"></i>
+                Wortmeldungen von {{ profil_user.username }}
+            </h5>
+            {% if current_user.is_authenticated and current_user.id == profil_user.id %}
+            <a href="{{ url_for('wortmeldung_neu') }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>Neue Wortmeldung
+            </a>
+            {% endif %}
+        </div>
+
+        {% if wortmeldungen.items %}
+            {% for wm in wortmeldungen.items %}
+            <div class="card shadow-sm mb-3 border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <small class="text-muted">
+                            <i class="bi bi-clock me-1"></i>
+                            {{ wm.datum_uhrzeit.strftime('%d.%m.%Y %H:%M') }} Uhr
+                        </small>
+                        <span class="badge bg-secondary">
+                            <i class="bi bi-reply-all me-1"></i>{{ wm.rueckmeldungen.count() }}
+                        </span>
+                    </div>
+                    <p class="card-text mb-3">{{ wm.text }}</p>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('wortmeldung_detail', wm_id=wm.id) }}"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye me-1"></i>Details
+                        </a>
+                        {% if current_user.is_authenticated and current_user.id == profil_user.id %}
+                        <form method="POST"
+                              action="{{ url_for('wortmeldung_loeschen', wm_id=wm.id) }}"
+                              onsubmit="return confirm('Wortmeldung wirklich löschen?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash me-1"></i>Löschen
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if wortmeldungen.pages > 1 %}
+            <nav aria-label="Seitennavigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if not wortmeldungen.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('profil', username=profil_user.username, page=wortmeldungen.prev_num) if wortmeldungen.has_prev else '#' }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% for page_num in wortmeldungen.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                        <li class="page-item {% if page_num == wortmeldungen.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('profil', username=profil_user.username, page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if not wortmeldungen.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('profil', username=profil_user.username, page=wortmeldungen.next_num) if wortmeldungen.has_next else '#' }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-chat-square display-3"></i>
+                <h5 class="mt-3">Noch keine Wortmeldungen.</h5>
+                {% if current_user.is_authenticated and current_user.id == profil_user.id %}
+                <a href="{{ url_for('wortmeldung_neu') }}" class="btn btn-primary mt-2">
+                    <i class="bi bi-plus-lg me-1"></i>Erste Wortmeldung erstellen
+                </a>
+                {% endif %}
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Startseite – Wortmeldungs-App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">
+                <i class="bi bi-chat-square-text text-primary me-2"></i>Alle Wortmeldungen
+            </h2>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('wortmeldung_neu') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>Neue Wortmeldung
+            </a>
+            {% endif %}
+        </div>
+
+        {% if wortmeldungen.items %}
+            {% for wm in wortmeldungen.items %}
+            <div class="card shadow-sm mb-3 border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <a href="{{ url_for('profil', username=wm.autor.username) }}"
+                               class="fw-semibold text-decoration-none text-primary">
+                                <i class="bi bi-person-circle me-1"></i>{{ wm.autor.username }}
+                            </a>
+                            <small class="text-muted ms-2">
+                                <i class="bi bi-clock me-1"></i>
+                                {{ wm.datum_uhrzeit.strftime('%d.%m.%Y %H:%M') }} Uhr
+                            </small>
+                        </div>
+                        <span class="badge bg-secondary">
+                            <i class="bi bi-reply-all me-1"></i>{{ wm.rueckmeldungen.count() }}
+                        </span>
+                    </div>
+                    <p class="card-text mb-3">{{ wm.text }}</p>
+                    <a href="{{ url_for('wortmeldung_detail', wm_id=wm.id) }}"
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye me-1"></i>Details &amp; Rückmeldungen
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if wortmeldungen.pages > 1 %}
+            <nav aria-label="Seitennavigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if not wortmeldungen.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('index', page=wortmeldungen.prev_num) if wortmeldungen.has_prev else '#' }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% for page_num in wortmeldungen.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                        <li class="page-item {% if page_num == wortmeldungen.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('index', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if not wortmeldungen.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('index', page=wortmeldungen.next_num) if wortmeldungen.has_next else '#' }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-chat-square display-1 text-muted"></i>
+                <h4 class="mt-3 text-muted">Noch keine Wortmeldungen vorhanden.</h4>
+                {% if current_user.is_authenticated %}
+                <p class="text-muted">Sei der Erste und erstelle eine Wortmeldung!</p>
+                <a href="{{ url_for('wortmeldung_neu') }}" class="btn btn-primary mt-2">
+                    <i class="bi bi-plus-lg me-1"></i>Jetzt Wortmeldung erstellen
+                </a>
+                {% else %}
+                <p class="text-muted">Melde dich an, um die erste Wortmeldung zu erstellen.</p>
+                <a href="{{ url_for('register') }}" class="btn btn-primary mt-2 me-2">Registrieren</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary mt-2">Anmelden</a>
+                {% endif %}
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

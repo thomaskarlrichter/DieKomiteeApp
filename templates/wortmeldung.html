@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Wortmeldung #{{ wm.id }} – Wortmeldungs-App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+
+        <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary mb-3">
+            <i class="bi bi-arrow-left me-1"></i>Zurück
+        </a>
+
+        <!-- Wortmeldung -->
+        <div class="card shadow border-0 mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-chat-square-text-fill me-2"></i>Wortmeldung</span>
+                <small>{{ wm.datum_uhrzeit.strftime('%d.%m.%Y %H:%M') }} Uhr</small>
+            </div>
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <a href="{{ url_for('profil', username=wm.autor.username) }}"
+                       class="fw-semibold text-decoration-none text-primary">
+                        <i class="bi bi-person-circle me-1"></i>{{ wm.autor.username }}
+                    </a>
+                </div>
+                <p class="fs-5 mb-0" style="white-space:pre-wrap">{{ wm.text }}</p>
+
+                {% if current_user.is_authenticated and current_user.id == wm.user_id %}
+                <div class="mt-4 pt-3 border-top">
+                    <form method="POST"
+                          action="{{ url_for('wortmeldung_loeschen', wm_id=wm.id) }}"
+                          onsubmit="return confirm('Diese Wortmeldung und alle Rückmeldungen wirklich löschen?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash me-1"></i>Wortmeldung löschen
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Rückmeldungen -->
+        <h5 class="mb-3">
+            <i class="bi bi-reply-all me-2 text-primary"></i>Rückmeldungen
+            <span class="badge bg-secondary ms-1">{{ rueckmeldungen|length }}</span>
+        </h5>
+
+        {% if rueckmeldungen %}
+            {% for rb in rueckmeldungen %}
+            <div class="card shadow-sm mb-2 border-0 border-start border-4 border-primary">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <div>
+                            <a href="{{ url_for('profil', username=rb.autor.username) }}"
+                               class="fw-semibold text-decoration-none text-primary small">
+                                <i class="bi bi-person-circle me-1"></i>{{ rb.autor.username }}
+                            </a>
+                            <small class="text-muted ms-2">
+                                <i class="bi bi-clock me-1"></i>
+                                {{ rb.datum_uhrzeit.strftime('%d.%m.%Y %H:%M') }} Uhr
+                            </small>
+                        </div>
+                        {% if current_user.is_authenticated and current_user.id == rb.user_id %}
+                        <form method="POST"
+                              action="{{ url_for('rueckmeldung_loeschen', rb_id=rb.id) }}"
+                              onsubmit="return confirm('Rückmeldung löschen?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Löschen">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <p class="mb-0" style="white-space:pre-wrap">{{ rb.text }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">
+                <i class="bi bi-chat-square me-1"></i>Noch keine Rückmeldungen. Sei der Erste!
+            </p>
+        {% endif %}
+
+        <!-- Neue Rückmeldung -->
+        {% if current_user.is_authenticated %}
+        <div class="card shadow border-0 mt-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-reply me-2"></i>Rückmeldung verfassen</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('rueckmeldung_erstellen', wm_id=wm.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <textarea class="form-control" name="text" rows="3"
+                                  placeholder="Deine Rückmeldung..." required
+                                  maxlength="1000"></textarea>
+                        <div class="form-text text-end">
+                            <span id="charCount">0</span>/1000 Zeichen
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-1"></i>Rückmeldung absenden
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info mt-4">
+            <i class="bi bi-info-circle me-2"></i>
+            <a href="{{ url_for('login') }}" class="alert-link">Melde dich an</a>,
+            um eine Rückmeldung zu verfassen.
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const textarea = document.querySelector('textarea[name="text"]');
+const counter = document.getElementById('charCount');
+if (textarea && counter) {
+    textarea.addEventListener('input', () => {
+        counter.textContent = textarea.value.length;
+        counter.className = textarea.value.length > 900 ? 'text-danger fw-bold' : '';
+    });
+}
+</script>
+{% endblock %}

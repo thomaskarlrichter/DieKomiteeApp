@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Neue Wortmeldung – Wortmeldungs-App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-plus-circle-fill me-2"></i>Neue Wortmeldung erstellen</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('wortmeldung_neu') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="text" class="form-label fw-semibold">
+                            <i class="bi bi-chat-text me-1"></i>Deine Wortmeldung
+                        </label>
+                        <textarea class="form-control" id="text" name="text" rows="6"
+                                  placeholder="Was möchtest du mitteilen?" required
+                                  maxlength="2000">{{ request.form.get('text', '') }}</textarea>
+                        <div class="form-text text-end">
+                            <span id="charCount">{{ request.form.get('text', '')|length }}</span>/2000 Zeichen
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send-fill me-1"></i>Wortmeldung absenden
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-1"></i>Abbrechen
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const textarea = document.getElementById('text');
+const counter = document.getElementById('charCount');
+function updateCount() {
+    counter.textContent = textarea.value.length;
+    counter.className = textarea.value.length > 1800 ? 'text-danger fw-bold' : '';
+}
+textarea.addEventListener('input', updateCount);
+updateCount();
+</script>
+{% endblock %}

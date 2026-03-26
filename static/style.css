@@ -1,0 +1,60 @@
+/* ============================================================
+   Wortmeldungs-App – Custom Styles
+   ============================================================ */
+
+/* Layout: sticky footer */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+main.container { flex: 1; }
+
+/* Smooth page fade-in */
+main {
+    animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Card hover lift */
+.card {
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+.card:hover {
+    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.12) !important;
+}
+
+/* Left-border reply cards slide on hover */
+.border-start.border-primary:hover {
+    transform: translateX(3px);
+}
+
+/* Textarea: vertical resize only */
+textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Active pagination item */
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Navbar brand subtle hover */
+.navbar-brand {
+    transition: opacity 0.2s ease;
+}
+.navbar-brand:hover { opacity: 0.85; }
+
+/* Flash alerts */
+.alert { border-radius: 0.5rem; }
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+    .card-body { padding: 1rem !important; }
+    .d-flex.gap-2 { flex-wrap: wrap; }
+}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Registrieren – Wortmeldungs-App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h4 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i>Registrieren</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('register') }}" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-semibold">
+                            <i class="bi bi-person me-1"></i>Benutzername
+                        </label>
+                        <input type="text" class="form-control" id="username" name="username"
+                               placeholder="Mindestens 3 Zeichen" required autofocus
+                               value="{{ request.form.get('username', '') }}">
+                        <div class="form-text">Mindestens 3 Zeichen. Wird öffentlich angezeigt.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-semibold">
+                            <i class="bi bi-envelope me-1"></i>E-Mail-Adresse
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               placeholder="deine@email.de" required
+                               value="{{ request.form.get('email', '') }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-semibold">
+                            <i class="bi bi-lock me-1"></i>Passwort
+                        </label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password"
+                                   name="password" placeholder="Mindestens 6 Zeichen" required>
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('password', this)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">Mindestens 6 Zeichen.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password2" class="form-label fw-semibold">
+                            <i class="bi bi-lock-fill me-1"></i>Passwort bestätigen
+                        </label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password2"
+                                   name="password2" placeholder="Passwort wiederholen" required>
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('password2', this)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">Passwörter stimmen nicht überein.</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-check-fill me-2"></i>Konto erstellen
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center text-muted py-3">
+                Bereits registriert?
+                <a href="{{ url_for('login') }}" class="text-decoration-none fw-semibold">Jetzt anmelden</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePassword(fieldId, btn) {
+    const field = document.getElementById(fieldId);
+    const icon = btn.querySelector('i');
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        field.type = 'password';
+        icon.className = 'bi bi-eye';
+    }
+}
+
+const pw1 = document.getElementById('password');
+const pw2 = document.getElementById('password2');
+function checkMatch() {
+    if (pw2.value && pw1.value !== pw2.value) {
+        pw2.setCustomValidity('Passwörter stimmen nicht überein.');
+        pw2.classList.add('is-invalid');
+        pw2.classList.remove('is-valid');
+    } else {
+        pw2.setCustomValidity('');
+        pw2.classList.remove('is-invalid');
+        if (pw2.value) pw2.classList.add('is-valid');
+    }
+}
+pw1.addEventListener('input', checkMatch);
+pw2.addEventListener('input', checkMatch);
+</script>
+{% endblock %}
