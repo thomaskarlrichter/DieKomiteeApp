@@ -4,7 +4,7 @@ from flask import Flask, render_template, redirect, url_for, flash, request, abo
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf.csrf import CSRFProtect
 from flask_migrate import Migrate
-from models import db, User, Wortmeldung, Rueckmeldung, Auflage, Rueckfall
+from models import db, User, Wortmeldung, Rueckmeldung, Auflage, Rueckfall, Treffen
 
 
 def create_app():
@@ -270,9 +270,123 @@ def create_app():
         return redirect(url_for('auflage_detail', id=auflage_id))
 
     # ------------------------------------------------------------------
+    # Treffen Routes
+    # ------------------------------------------------------------------
+
+    @app.route('/treffen')
+    @login_required
+    def treffen_liste():
+        treffen_liste = Treffen.query.order_by(Treffen.datum.desc(), Treffen.uhrzeit.desc()).all()
+        return render_template('treffen.html', treffen_liste=treffen_liste)
+
+    @app.route('/treffen/neu', methods=['GET', 'POST'])
+    @login_required
+    def treffen_neu():
+        if request.method == 'POST':
+            datum_str = request.form.get('datum', '')
+            uhrzeit_str = request.form.get('uhrzeit', '')
+            ort = request.form.get('ort', '').strip()
+            beschreibung = request.form.get('beschreibung', '').strip()
+
+            error = None
+            if not datum_str:
+                error = 'Datum ist erforderlich.'
+            elif not uhrzeit_str:
+                error = 'Uhrzeit ist erforderlich.'
+            elif not ort:
+                error = 'Ort ist erforderlich.'
+            else:
+                try:
+                    datum = datetime.strptime(datum_str, '%Y-%m-%d').date()
+                    uhrzeit = datetime.strptime(uhrzeit_str, '%H:%M').time()
+                except ValueError:
+                    error = 'Ungültiges Datums- oder Zeitformat.'
+
+            if error:
+                flash(error, 'danger')
+            else:
+                treffen = Treffen(
+                    datum=datum,
+                    uhrzeit=uhrzeit,
+                    ort=ort,
+                    beschreibung=beschreibung
+                )
+                db.session.add(treffen)
+                db.session.commit()
+                flash('Treffen erfolgreich erstellt.', 'success')
+                return redirect(url_for('treffen_liste'))
+        return render_template('treffen_neu.html')
+
+    @app.route('/treffen/<int:id>')
+    @login_required
+    def treffen_detail(id):
+        treffen = Treffen.query.get_or_404(id)
+        wortmeldungen = treffen.wortmeldungen.order_by(Wortmeldung.datum_uhrzeit.asc()).all()
+        return render_template('treffen_detail.html', treffen=treffen, wortmeldungen=wortmeldungen)
+
+    @app.route('/treffen/<int:id>/bearbeiten', methods=['GET', 'POST'])
+    @login_required
+    def treffen_bearbeiten(id):
+        treffen = Treffen.query.get_or_404(id)
+        # TODO: Zugriffskontrolle (nur Komiteeleitung)
+        if request.method == 'POST':
+            datum_str = request.form.get('datum', '')
+            uhrzeit_str = request.form.get('uhrzeit', '')
+            ort = request.form.get('ort', '').strip()
+            beschreibung = request.form.get('beschreibung', '').strip()
+            try:
+                treffen.datum = datetime.strptime(datum_str, '%Y-%m-%d').date()
+                treffen.uhrzeit = datetime.strptime(uhrzeit_str, '%H:%M').time()
+            except ValueError:
+                flash('Ungültiges Datums- oder Zeitformat.', 'danger')
+                return redirect(url_for('treffen_bearbeiten', id=id))
+            treffen.ort = ort
+            treffen.beschreibung = beschreibung
+            db.session.commit()
+            flash('Treffen erfolgreich aktualisiert.', 'success')
+            return redirect(url_for('treffen_detail', id=id))
+        return render_template('treffen_bearbeiten.html', treffen=treffen)
+
+    @app.route('/treffen/<int:id>/loeschen', methods=['POST'])
+    @login_required
+    def treffen_loeschen(id):
+        treffen = Treffen.query.get_or_404(id)
+        # TODO: Zugriffskontrolle (nur Komiteeleitung)
+        db.session.delete(treffen)
+        db.session.commit()
+        flash('Treffen erfolgreich gelöscht.', 'success')
+        return redirect(url_for('treffen_liste'))
+
+    @app.route('/treffen/<int:treffen_id>/wortmeldung/neu', methods=['GET', 'POST'])
+    @login_required
+    def wortmeldung_treffen_neu(treffen_id):
+        treffen = Treffen.query.get_or_404(treffen_id)
+        if request.method == 'POST':
+            text = request.form.get('text', '').strip()
+            kategorie = request.form.get('kategorie', 'vorfall')
+            # Status bleibt 'offen' als Default
+            error = None
+            if not text:
+                error = 'Text der Wortmeldung ist erforderlich.'
+            if error:
+                flash(error, 'danger')
+            else:
+                wortmeldung = Wortmeldung(
+                    text=text,
+                    kategorie=kategorie,
+                    status='offen',
+                    user_id=current_user.id,
+                    treffen_id=treffen_id
+                )
+                db.session.add(wortmeldung)
+                db.session.commit()
+                flash('Wortmeldung erfolgreich angemeldet.', 'success')
+                return redirect(url_for('treffen_detail', id=treffen_id))
+        return render_template('wortmeldung_treffen_neu.html', treffen=treffen)
+
+    # ------------------------------------------------------------------
     # Error handlers
     # ------------------------------------------------------------------
-        return redirect(url_for('index'))
 
     # ------------------------------------------------------------------
     # Feed

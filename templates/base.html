@@ -29,6 +29,11 @@
                 </li>
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('treffen_liste') }}">
+                        <i class="bi bi-calendar-event me-1"></i>Treffen
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('auflagen') }}">
                         <i class="bi bi-list-check me-1"></i>Auflagen
                     </a>
