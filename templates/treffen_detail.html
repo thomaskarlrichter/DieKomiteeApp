@@ -32,8 +32,18 @@
                 </div>
                 <p class="mb-1">{{ wm.text }}</p>
                 <div class="mt-2">
-                    <a href="#" class="btn btn-outline-secondary btn-sm">Status ändern</a>
-                    <a href="#" class="btn btn-outline-secondary btn-sm">Bearbeiten</a>
+                    <form method="POST" action="{{ url_for('wortmeldung_status', id=wm.id) }}" class="d-inline me-1">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="next" value="{{ url_for('treffen_detail', id=treffen.id) }}">
+                        <select name="status" class="form-select form-select-sm me-1" style="width: auto;">
+                            <option value="offen" {% if wm.status=='offen' %}selected{% endif %}>offen</option>
+                            <option value="erledigt" {% if wm.status=='erledigt' %}selected{% endif %}>erledigt</option>
+                            <option value="zurueckgestellt" {% if wm.status=='zurueckgestellt' %}selected{% endif %}>zurückgestellt</option>
+                            <option value="geloescht" {% if wm.status=='geloescht' %}selected{% endif %}>gelöscht</option>
+                        </select>
+                        <button type="submit" class="btn btn-outline-primary btn-sm">Status ändern</button>
+                    </form>
+                    <a href="#" class="btn btn-outline-secondary btn-sm me-1">Bearbeiten</a>
                     <form method="POST" action="#" class="d-inline" onsubmit="return confirm('Wortmeldung wirklich löschen?');">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-outline-danger btn-sm">Löschen</button>

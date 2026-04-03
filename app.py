@@ -446,12 +446,50 @@ def create_app():
     @login_required
     def wortmeldung_loeschen(wm_id):
         wm = Wortmeldung.query.get_or_404(wm_id)
-        if wm.user_id != current_user.id:
+        # Nur Eigentümer oder Komiteeleitung darf löschen
+        if wm.user_id != current_user.id and not current_user.is_komiteeleitung:
             abort(403)
         db.session.delete(wm)
         db.session.commit()
         flash('Wortmeldung wurde gelöscht.', 'info')
-        return redirect(url_for('profil', username=current_user.username))
+        next_page = request.form.get('next') or url_for('profil', username=current_user.username)
+        return redirect(next_page)
+
+    @app.route('/wortmeldung/<int:id>/bearbeiten', methods=['GET', 'POST'])
+    @login_required
+    def wortmeldung_bearbeiten(id):
+        wortmeldung = Wortmeldung.query.get_or_404(id)
+        # Zugriffskontrolle: Nur Eigentümer oder Komiteeleitung
+        if wortmeldung.user_id != current_user.id and not current_user.is_komiteeleitung:
+            abort(403)
+        
+        if request.method == 'POST':
+            # Hier kommt Bearbeitungslogik (für spätere Implementierung)
+            flash('Bearbeitungsfunktion noch nicht implementiert.', 'warning')
+            next_page = request.form.get('next') or url_for('komiteeleitung')
+            return redirect(next_page)
+        
+        # GET: Zeige Bearbeitungsformular (Platzhalter)
+        return render_template('wortmeldung_bearbeiten.html', wortmeldung=wortmeldung)
+
+    @app.route('/wortmeldung/<int:id>/verschieben', methods=['POST'])
+    def wortmeldung_verschieben(id):
+        wortmeldung = Wortmeldung.query.get_or_404(id)
+        treffen_id = request.form.get('treffen_id', type=int)
+        
+        if treffen_id:
+            treffen = Treffen.query.get_or_404(treffen_id)
+            wortmeldung.treffen_id = treffen_id
+            db.session.commit()
+            flash(f'Wortmeldung #{id} wurde zu Treffen am {treffen.datum.strftime("%d.%m.%Y")} verschoben.', 'success')
+        else:
+            flash('Bitte ein Treffen auswählen.', 'warning')
+        
+        next_page = request.form.get('next') or url_for('komiteeleitung')
+        return redirect(next_page)
+
+    # ------------------------------------------------------------------
+    # Rueckmeldungen
 
     # ------------------------------------------------------------------
     # Rueckmeldungen
@@ -502,6 +540,63 @@ def create_app():
             'error.html', code=404,
             message='Seite nicht gefunden.'
         ), 404
+
+    # ------------------------------------------------------------------
+    # Komiteeleitung Decorator
+    # ------------------------------------------------------------------
+    def komiteeleitung_required(f):
+        from functools import wraps
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('login'))
+            if not current_user.is_komiteeleitung:
+                flash('Zugriff verweigert: Nur Komiteeleitung darf diese Seite aufrufen.', 'danger')
+                return redirect(url_for('index'))
+            return f(*args, **kwargs)
+        return decorated_function
+
+    # ------------------------------------------------------------------
+    # Komiteeleitung Routes
+    # ------------------------------------------------------------------
+    @app.route('/komiteeleitung')
+    @login_required
+    @komiteeleitung_required
+    def komiteeleitung():
+        # Alle Treffen für Filter-Links
+        alle_treffen = Treffen.query.order_by(Treffen.datum.desc()).all()
+        
+        # Filter nach Treffen, falls Parameter vorhanden
+        treffen_id = request.args.get('treffen_id', type=int)
+        query = Wortmeldung.query
+        
+        if treffen_id:
+            query = query.filter_by(treffen_id=treffen_id)
+            aktuelles_treffen = Treffen.query.get(treffen_id)
+        else:
+            aktuelles_treffen = None
+        
+        wortmeldungen = query.order_by(Wortmeldung.datum_uhrzeit.desc()).all()
+        return render_template('komiteeleitung.html', 
+                               wortmeldungen=wortmeldungen,
+                               alle_treffen=alle_treffen,
+                               aktuelles_treffen=aktuelles_treffen,
+                               treffen_id=treffen_id)
+
+    @app.route('/wortmeldung/<int:id>/status', methods=['POST'])
+    @login_required
+    @komiteeleitung_required
+    def wortmeldung_status(id):
+        wortmeldung = Wortmeldung.query.get_or_404(id)
+        new_status = request.form.get('status')
+        if new_status in ['offen', 'erledigt', 'zurueckgestellt', 'geloescht']:
+            wortmeldung.status = new_status
+            db.session.commit()
+            flash(f'Status von Wortmeldung #{id} wurde auf "{new_status}" geändert.', 'success')
+        else:
+            flash('Ungültiger Status.', 'danger')
+        next_page = request.form.get('next') or url_for('komiteeleitung')
+        return redirect(next_page)
 
     return app
 

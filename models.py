@@ -14,6 +14,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     erstellt_am = db.Column(db.DateTime, default=datetime.utcnow)
+    is_komiteeleitung = db.Column(db.Boolean, default=False, nullable=False)
 
     wortmeldungen = db.relationship(
         'Wortmeldung', backref='autor', lazy='dynamic',
