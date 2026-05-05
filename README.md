@@ -1,6 +1,6 @@
 # Komitee-App – Plattform für strukturierte Gruppenarbeit
 
-Die Komitee-App ist eine Webanwendung für die Dokumentation und Organisation von Komitee-Treffen basiernd auf den Prinzipien der 12-Schritte-Programme. Sie ermöglicht Mitgliedern, persönliche Auflagen (Fastenvereinbarungen), Rückfälle und Wortmeldungen zu strukturierten Treffen zu erfassen und zu verwalten.
+Die Komitee-App ist eine Webanwendung für die Dokumentation und Organisation von Komitee-Treffen basiernd auf den Prinzipien der 12-Schritte-Programme. Sie ermöglicht Mitgliedern, persönliche Auflagen (Fastenvereinbarungen), Rückfälle und Wortmeldungen zu strukturierten Treffen zu erfassen und zu verwalten. Was das Komitee ist erklärt [komitee.md]
 
 ## ✨ Funktionen
 
