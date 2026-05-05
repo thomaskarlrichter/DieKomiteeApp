@@ -6,7 +6,7 @@ Das **Bad Herrenalber Modell** ist ein humanistisches, tiefenpsychologisch fundi
 
 ### Komitee als Teil der therapeutischen Gemeinschaft
 
-Das Komitee ist eine der drei regelmäßig stattfindenden Großgruppen innerhalb des Bad Herrenalber Modells. Es dient als **Übungsfeld der Begegnung** für authentisches und gewaltfreies Kommunikationsverhalten. Im Komitee werden exemplarisch **Beziehungsklärungen**, **Konfrontationen** und **Rückfälle** bearbeitet, um alte Beziehungsmuster zu verändern und neues Beziehungsverhalten zu erleben und einzuüben.
+Das Komitee ist eine der drei regelmäßig stattfindenden Großgruppen innerhalb des Bad Herrenalber Modells. Es dient als **Übungsfeld der Begegnung** für authentisches und gewaltfreies Kommunikationsverhalten. Im Komitee werden exemplarisch **Beziehungsklärungen**, **Konfrontationen** und **Rückfälle** bearbeitet, um alte Beziehungsmuster zu verändern und neues Beziehungsverhalten zu erleben und einzuüben. [Hilfsmittel der Komiteearbeit](Hilfsmittel_der_Komiteearbeit.pdf)
 
 Die Teilnehmer („Gäste“) und Mitarbeiter sprechen sich mit einem vertraulichen „Du“ und ihren Vornamen an – eine Praxis, die die Fremdheit zwischen Ärzten und Patienten auflöst und eine direkte, persönliche Atmosphäre schafft.
 
