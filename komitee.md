@@ -12,6 +12,8 @@ Die Teilnehmer („Gäste“) und Mitarbeiter sprechen sich mit einem vertraulic
 
 Das Komitee ist nicht nur ein organisatorisches Gremium (wie der Vorstand des Forum Herrenalber Modell e.V.), sondern ein **therapeutisches Instrument**, in dem die Grundprinzipien des Modells – Selbsthilfe, Gemeinschaft, Ganzheitlichkeit, Transparenz – gelebt werden.
 
+![Bild von der Komiteearbeit](static/KomiteegruppevorKamin.jpg)
+
 ### Werkzeuge der Komiteearbeit
 
 Die Arbeit im Komitee und in der therapeutischen Gemeinschaft wird durch eine Reihe von **Werkzeuge** (Methoden und Strukturen) unterstützt, die aus dem Bad Herrenalber Modell und dem 12-Schritte-Programm stammen.
