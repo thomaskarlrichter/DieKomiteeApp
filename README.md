@@ -187,6 +187,45 @@ lt --port 8080 --subdomain diekomitee
 
 Danach erreichbar unter: **https://diekomitee.loca.lt**
 
+## 🐳 Docker-Schnellstart
+
+### Mit Docker Compose (empfohlen)
+
+```bash
+# 1. Umgebungsvariablen konfigurieren
+cp .env.example .env
+# SECRET_KEY in .env anpassen
+
+# 2. Container bauen und starten
+docker compose up -d
+
+# 3. App aufrufen
+open http://localhost:5003
+
+# 4. Logs anzeigen
+docker compose logs -f
+
+# 5. Container stoppen
+docker compose down
+```
+
+### Manuelles Docker-Image
+
+```bash
+# Image bauen
+docker build -t diekomiteeapp .
+
+# Container starten
+docker run -d -p 5003:5003 --name diekomiteeapp \
+  -v $(pwd)/instance:/app/instance \
+  -e SECRET_KEY=mein-sicherer-schluessel \
+  diekomiteeapp
+
+# Zugriff unter http://localhost:5003
+```
+
+> **Hinweis:** Die SQLite-Datenbank bleibt durch das Volume `./instance:/app/instance` auch nach Container-Neustarts erhalten. Für Produktion empfehle ich eine PostgreSQL-Datenbank.
+
 ## 🚧 Geplante Erweiterungen
 
 1. **Zugriffskontrolle** – Komiteeleitung kann Status von Wortmeldungen ändern
