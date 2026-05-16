@@ -466,12 +466,26 @@ def create_app():
             abort(403)
         
         if request.method == 'POST':
-            # Hier kommt Bearbeitungslogik (für spätere Implementierung)
-            flash('Bearbeitungsfunktion noch nicht implementiert.', 'warning')
-            next_page = request.form.get('next') or url_for('komiteeleitung')
-            return redirect(next_page)
+            text = request.form.get('text', '').strip()
+            kategorie = request.form.get('kategorie', '').strip()
+            
+            error = None
+            if not text:
+                error = 'Die Wortmeldung darf nicht leer sein.'
+            elif len(text) > 2000:
+                error = 'Die Wortmeldung darf maximal 2000 Zeichen lang sein.'
+            elif kategorie not in ('vorfall', 'rueckfall', 'mitteilung_auflage', 'geheimnis', 'beziehungsklaerung'):
+                error = 'Ungültige Kategorie.'
+            
+            if error:
+                flash(error, 'danger')
+            else:
+                wortmeldung.text = text
+                wortmeldung.kategorie = kategorie
+                db.session.commit()
+                flash('Wortmeldung erfolgreich aktualisiert.', 'success')
+                return redirect(url_for('wortmeldung_detail', wm_id=wortmeldung.id))
         
-        # GET: Zeige Bearbeitungsformular (Platzhalter)
         return render_template('wortmeldung_bearbeiten.html', wortmeldung=wortmeldung)
 
     @app.route('/wortmeldung/<int:id>/verschieben', methods=['POST'])
