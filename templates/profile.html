@@ -64,6 +64,10 @@
                             <i class="bi bi-eye me-1"></i>Details
                         </a>
                         {% if current_user.is_authenticated and current_user.id == profil_user.id %}
+                        <a href="{{ url_for('wortmeldung_bearbeiten', id=wm.id) }}"
+                           class="btn btn-sm btn-outline-warning">
+                            <i class="bi bi-pencil me-1"></i>Ändern
+                        </a>
                         <form method="POST"
                               action="{{ url_for('wortmeldung_loeschen', wm_id=wm.id) }}"
                               onsubmit="return confirm('Wortmeldung wirklich löschen?')">
